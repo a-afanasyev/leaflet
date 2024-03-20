@@ -5,6 +5,17 @@ let map;
 // path to csv data
 let path = "data/10.csv";
 
+var WarIcon = L.Icon.extend({
+    options: {
+        shadowUrl: 'leaf-shadow.png',
+        iconSize:     [38, 95],
+        shadowSize:   [50, 64],
+        iconAnchor:   [22, 94],
+        shadowAnchor: [4, 62],
+        popupAnchor:  [-3, -76]
+    }
+});
+
 let markers = L.featureGroup();
 
 // initialize
@@ -91,15 +102,43 @@ function mapCSV(data){
                 this.bindPopup(`${item.Region} ${item.markaz} ${item.home}<br>Warning`).openPopup()
             })
             markers.addLayer(marker)
+			
+			let sidebarItem = $(`<div class="sidebar-item">${item.Region} ${item.markaz} ${item.home}</div>`);
+
+            sidebarItem.click(function() {
+                map.setView([item.latitude, item.longitude], 3000);
+                marker.bindPopup(`${item.Region} ${item.markaz} ${item.home}<br>All Good`).openPopup();
+            });
+
+                // Добавление элемента в соответствующую группу на сайдбаре
+             $(`#${item.status}-group .status-items`).append(sidebarItem);
+
         } else {
             let marker = L.circleMarker([item.latitude,item.longitude],circleOptionsRed)
             .on('mouseover',function(){
                 this.bindPopup(`${item.Region} ${item.markaz} ${item.home}<br>Error`).openPopup()
             })
             markers.addLayer(marker)
+
+			let sidebarItem = $(`<div class="sidebar-item">${item.Region} ${item.markaz} ${item.home}</div>`);
+
+            sidebarItem.click(function() {
+                map.setView([item.latitude, item.longitude], 3000);
+                marker.bindPopup(`${item.Region} ${item.markaz} ${item.home}<br>All Good`).openPopup();
+            });
+
+                // Добавление элемента в соответствующую группу на сайдбаре
+             $(`#${item.status}-group .status-items`).append(sidebarItem);
+
         }
 
 	})
+
+			// Предположим, что у вас уже есть объект карты Leaflet в переменной `map`
+		let popup = L.popup({ className: 'blinking-popup' })
+		.setLatLng([41.28320,69.19576]) // Установите координаты, где должен появиться попап
+		.setContent("Warning!") // Содержимое попапа
+		.openOn(map); // Добавьте попап на карту
     
     $('.status-title').click(function() {
         $(this).next('.status-items').slideToggle('fast');

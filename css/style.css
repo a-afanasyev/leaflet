@@ -44,7 +44,7 @@ body {
 }
 
 #sidebar {
-    width: 300px; /* Задаем ширину сайдбара */
+    width: 250px; /* Задаем ширину сайдбара */
     background-color: #f9f9f9; /* Цвет фона */
     border-right: 2px solid #ececec; /* Граница справа */
     padding: 10px; /* Внутренний отступ */
@@ -82,3 +82,22 @@ body {
     background-color: #ddd; /* Цвет фона при наведении */
 }
 
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+  
+  .blinking-popup .leaflet-popup-content-wrapper {
+    background-color: red; /* Фон попапа */
+    color: white; /* Цвет текста */
+    border-radius: 8px; /* Скругление углов */
+    animation: blink 2s linear infinite; /* Анимация продолжается 2 секунды с постоянной скоростью и повторяется бесконечно */
+  }
+
+  .warning-popup{
+    background-color: yellow; /* Фон попапа */
+    color: black; /* Цвет текста */
+    border-radius: 8px; /* Скругление углов */
+  }
+  
