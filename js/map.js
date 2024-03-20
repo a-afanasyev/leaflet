@@ -1,9 +1,112 @@
-var map = L.map('map').setView([34.0697,-118.4432], 17);
+// 41.28033,69.19897
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-	attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-}).addTo(map);
+// Global variables
+let map;
+// path to csv data
+let path = "data/10.csv";
 
-var marker = L.marker([34.0697,-118.4432]).addTo(map)
-		.bindPopup('The Technology Sandbox<br> Where Yoh is sitting this very moment')
-		.openPopup();	
+let markers = L.featureGroup();
+
+// initialize
+$( document ).ready(function() {
+	createMap();
+	readCSV(path);
+});
+
+// create the map
+function createMap(){
+	map = L.map('map').setView([0,0],3);
+
+	L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+		attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+	}).addTo(map);
+}
+// function to read csv data
+function readCSV(){
+	Papa.parse(path, {
+		header: true,
+		download: true,
+		complete: function(data) {
+			console.log(data);
+			
+			// map the data
+			mapCSV(data);
+
+		}
+	});
+}
+
+function mapCSV(data){
+
+	// circle options
+	let circleOptionsBlue = {
+		radius: 10,
+		weight: 1,
+		color: 'white',
+		fillColor: 'dodgerblue',
+		fillOpacity: 1
+	}
+    let circleOptionsRed = {
+		radius: 10,
+		weight: 1,
+		color: 'white',
+		fillColor: 'Red',
+		fillOpacity: 1
+	}
+    let circleOptionsYellow = {
+		radius: 10,
+		weight: 1,
+		color: 'white',
+		fillColor: 'orange',
+		fillOpacity: 1
+	}
+
+	// loop through each entry
+	data.data.forEach(function(item,index){
+		// create a marker
+		if(item.status === 'ok') {
+            let marker = L.circleMarker([item.latitude,item.longitude],circleOptionsBlue)
+            .on('mouseover',function(){
+                this.bindPopup(`${item.Region} ${item.markaz} ${item.home}<br>All Good`).openPopup()
+            })
+            markers.addLayer(marker)
+
+                        // Создание элемента сайдбара
+                let sidebarItem = $('<div class="sidebar-item">' + item.home + '</div>');
+                // Добавление обработчика события клика по элементу сайдбара
+                sidebarItem.click(function() {
+                    // Выделение или показ информации о маркере
+                    // Можно центрировать карту на маркере или открывать всплывающее окно маркера
+                    map.setView([item.latitude, item.longitude], 25); // Пример центрирования карты
+                    marker.openPopup(); // Открытие всплывающего окна маркера
+                });
+
+                // Добавление элемента в сайдбар
+                $('.sidebar').append(sidebarItem);
+
+
+            //$('.sidebar').append('<div class="sidebar-item">'+item.home+'</div>')
+
+        } else if (item.status === 'war') {
+            let marker = L.circleMarker([item.latitude,item.longitude],circleOptionsYellow)
+            .on('mouseover',function(){
+                this.bindPopup(`${item.Region} ${item.markaz} ${item.home}<br>Warning`).openPopup()
+            })
+            markers.addLayer(marker)
+        } else {
+            let marker = L.circleMarker([item.latitude,item.longitude],circleOptionsRed)
+            .on('mouseover',function(){
+                this.bindPopup(`${item.Region} ${item.markaz} ${item.home}<br>Error`).openPopup()
+            })
+            markers.addLayer(marker)
+        }
+
+	})
+    
+
+	// add featuregroup to map
+	markers.addTo(map)
+
+	// fit map to markers
+	map.fitBounds(markers.getBounds())
+}

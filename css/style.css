@@ -18,6 +18,13 @@ body {
 	"footer footer";
 }
 
+.sidebar-item {
+    padding: 10px; /* adds inner padding */
+    background: gainsboro; /* background color */
+    border: 1px solid gray; /* border width, style, and color */
+    margin: 5px; /* outer padding */
+}
+
 .header {
 	grid-area: header;
 	padding:10px;
