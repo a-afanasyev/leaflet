@@ -42,3 +42,43 @@ body {
 	padding:10px;
 	background-color: rgb(175, 175, 175);
 }
+
+#sidebar {
+    width: 300px; /* Задаем ширину сайдбара */
+    background-color: #f9f9f9; /* Цвет фона */
+    border-right: 2px solid #ececec; /* Граница справа */
+    padding: 10px; /* Внутренний отступ */
+    overflow-y: auto; /* Прокрутка по вертикали при необходимости */
+}
+
+.status-group {
+    margin-bottom: 10px; /* Отступ между группами */
+}
+
+.status-title {
+    background-color: #ddd; /* Цвет фона заголовков */
+    padding: 10px; /* Внутренний отступ */
+    cursor: pointer; /* Курсор в виде указателя */
+    border-radius: 5px; /* Скругленные углы */
+    font-weight: bold; /* Жирный шрифт */
+}
+
+.status-items {
+    display: none; /* По умолчанию элементы списка скрыты */
+    padding-left: 20px; /* Отступ для вложенных элементов */
+    width: 150px; /* Задаем ширину сайдбара */
+}
+
+.sidebar-item {
+    background-color: #eee; /* Цвет фона элементов списка */
+    margin: 5px 0; /* Отступы сверху и снизу */
+    padding: 5px; /* Внутренний отступ */
+    cursor: pointer; /* Курсор в виде указателя */
+    border-radius: 3px; /* Скругленные углы */
+    transition: background-color 0.3s; /* Анимация изменения цвета фона */
+}
+
+.sidebar-item:hover {
+    background-color: #ddd; /* Цвет фона при наведении */
+}
+

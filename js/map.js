@@ -70,20 +70,18 @@ function mapCSV(data){
                 this.bindPopup(`${item.Region} ${item.markaz} ${item.home}<br>All Good`).openPopup()
             })
             markers.addLayer(marker)
+            
+            let sidebarItem = $(`<div class="sidebar-item">${item.Region} ${item.markaz} ${item.home}</div>`);
 
-                        // Создание элемента сайдбара
-                let sidebarItem = $('<div class="sidebar-item">' + item.home + '</div>');
-                // Добавление обработчика события клика по элементу сайдбара
-                sidebarItem.click(function() {
-                    // Выделение или показ информации о маркере
-                    // Можно центрировать карту на маркере или открывать всплывающее окно маркера
-                    map.setView([item.latitude, item.longitude], 25); // Пример центрирования карты
-                    marker.openPopup(); // Открытие всплывающего окна маркера
-                });
+            sidebarItem.click(function() {
+                map.setView([item.latitude, item.longitude], 3000);
+                marker.bindPopup(`${item.Region} ${item.markaz} ${item.home}<br>All Good`).openPopup();
+            });
 
-                // Добавление элемента в сайдбар
-                $('.sidebar').append(sidebarItem);
+                // Добавление элемента в соответствующую группу на сайдбаре
+             $(`#${item.status}-group .status-items`).append(sidebarItem);
 
+            
 
             //$('.sidebar').append('<div class="sidebar-item">'+item.home+'</div>')
 
@@ -103,7 +101,9 @@ function mapCSV(data){
 
 	})
     
-
+    $('.status-title').click(function() {
+        $(this).next('.status-items').slideToggle('fast');
+    });
 	// add featuregroup to map
 	markers.addTo(map)
 
