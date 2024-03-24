@@ -4,6 +4,7 @@
 let map;
 // path to csv data
 let path = "data/10.csv";
+let picture_path= "data/images/";
 
 let markers = L.featureGroup();
 
@@ -75,16 +76,16 @@ function mapCSV(data){
 		const isPhase2Ok = item.el_ph2 >= 210 && item.el_ph2 <= 230
 		const isPhase3Ok = item.el_ph3 >= 210 && item.el_ph3 <= 230
 		const isVoltageOk = isPhase1Ok && isPhase2Ok && isPhase3Ok;
-		const voltageImage = isVoltageOk ? "data/images/Electricity_Green.png" : "data/images/Electricity_Orange.png";
+		const voltageImage = isVoltageOk ? picture_path+"Electricity_Green.png" : picture_path+"Electricity_Orange.png";
 		const isVoltageOff = item.el_ph1 == 0 && item.el_ph2 == 0 && item.el_ph3 == 0;
-
+		console.log(voltageImage);
 		//проверяем состояние ХВС
 		const isColdWaterOk = item.cold_water_pr >= 1;
-		const ColdWaterImage = isColdWaterOk ? "data/images/Water_Blue.png" : "data/images/Water_No_Blue.png";
+		const ColdWaterImage = isColdWaterOk ? picture_path+"Water_Blue.png" : picture_path+"Water_No_Blue.png";
 
 		//проверяем состояние ГВС
 		const isHotWaterOk = item.hot_water_pr >= 1;
-		const HotWaterImage = isHotWaterOk ? "data/images/Water_Red.png" : "data/images/Water_No_Red.png";
+		const HotWaterImage = isHotWaterOk ? picture_path+"Water_Red.png" : picture_path+"Water_No_Red.png";
 
 		if(isVoltageOk && !isVoltageOff && isColdWaterOk && isHotWaterOk){
 			//если все ок - рисуем зеленый индикатор и отображаем попап что все ок
@@ -97,15 +98,15 @@ function mapCSV(data){
 				<div>
 					<table class="custom-popup-style">
 						<tr>
-							<td><img src="data/images/Electricity_Green.png" alt="Electicity_Ok" style="width: 20px;"></td>
+							<td><img src="${picture_path}Electricity_Green.png" alt="Electicity_Ok" style="width: 20px;"></td>
 							<td>${item.el_ph1}V</td>
 							<td>${item.el_ph2}V</td>
 							<td>${item.el_ph3}V</td>
 						</tr>
 						<tr>
-							<td><img src="data/images/Water_Blue.png" alt="water_Ok" style="width: 20px;"></td>
+							<td><img src="${picture_path}Water_Blue.png" alt="water_Ok" style="width: 20px;"></td>
 							<td colspan="1">${item.cold_water_pr}Bar</td>
-							<td colspan="1"><img src="data/images/Water_Red.png" alt="water_Ok" style="width: 20px;"></td>
+							<td colspan="1"><img src="${picture_path}Water_Red.png" alt="water_Ok" style="width: 20px;"></td>
 							<td colspan="1">${item.hot_water_pr}Bar</td>
 						</tr>
 

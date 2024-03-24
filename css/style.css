@@ -129,7 +129,7 @@ body {
     color: orange;
   }
   .custom-popup-style .blinking-cell-orange {
-    animation: blink 1s linear infinite;
+    animation: blink 2s linear infinite;
     color: orange;
     font-weight: bold;
   }
