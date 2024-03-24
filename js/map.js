@@ -4,7 +4,7 @@
 let map;
 // path to csv data
 let path = "data/10.csv";
-let picture_path= "data/images/";
+let picture_path= "a-afanasyev/leaflet/main/data/images/";
 
 let markers = L.featureGroup();
 
