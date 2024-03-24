@@ -5,17 +5,6 @@ let map;
 // path to csv data
 let path = "data/10.csv";
 
-var WarIcon = L.Icon.extend({
-    options: {
-        shadowUrl: 'leaf-shadow.png',
-        iconSize:     [38, 95],
-        shadowSize:   [50, 64],
-        iconAnchor:   [22, 94],
-        shadowAnchor: [4, 62],
-        popupAnchor:  [-3, -76]
-    }
-});
-
 let markers = L.featureGroup();
 
 // initialize
@@ -57,6 +46,13 @@ function mapCSV(data){
 		fillColor: 'dodgerblue',
 		fillOpacity: 1
 	}
+	let circleOptionsGreen = {
+		radius: 10,
+		weight: 1,
+		color: 'white',
+		fillColor: 'Green',
+		fillOpacity: 1
+	}
     let circleOptionsRed = {
 		radius: 10,
 		weight: 1,
@@ -74,71 +70,160 @@ function mapCSV(data){
 
 	// loop through each entry
 	data.data.forEach(function(item,index){
-		// create a marker
-		if(item.status === 'ok') {
-            let marker = L.circleMarker([item.latitude,item.longitude],circleOptionsBlue)
-            .on('mouseover',function(){
-                this.bindPopup(`${item.Region} ${item.markaz} ${item.home}<br>All Good`).openPopup()
+		//проверяем состояние электоэнергии
+		const isPhase1Ok = item.el_ph1 >= 210 && item.el_ph1 <= 230
+		const isPhase2Ok = item.el_ph2 >= 210 && item.el_ph2 <= 230
+		const isPhase3Ok = item.el_ph3 >= 210 && item.el_ph3 <= 230
+		const isVoltageOk = isPhase1Ok && isPhase2Ok && isPhase3Ok;
+		const voltageImage = isVoltageOk ? "/data/images/Electricity_Green.png" : "/data/images/Electricity_Orange.png";
+		const isVoltageOff = item.el_ph1 == 0 && item.el_ph2 == 0 && item.el_ph3 == 0;
+
+		//проверяем состояние ХВС
+		const isColdWaterOk = item.cold_water_pr >= 1;
+		const ColdWaterImage = isColdWaterOk ? "/data/images/Water_Blue.png" : "/data/images/Water_No_Blue.png";
+
+		//проверяем состояние ГВС
+		const isHotWaterOk = item.hot_water_pr >= 1;
+		const HotWaterImage = isHotWaterOk ? "/data/images/Water_Red.png" : "/data/images/Water_No_Red.png";
+
+		if(isVoltageOk && !isVoltageOff && isColdWaterOk && isHotWaterOk){
+			//если все ок - рисуем зеленый индикатор и отображаем попап что все ок
+			
+			//формируем попап с зелеными индикаторами
+			let popupContent = `
+				<div class="custom-popup-style" style="text-align: center;">
+				<strong>${item.region} ${item.markaz} ${item.home}</strong> 
+				<br>
+				<div>
+					<table class="custom-popup-style">
+						<tr>
+							<td><img src="/data/images/Electricity_Green.png" alt="Electicity_Ok" style="width: 20px;"></td>
+							<td>${item.el_ph1}V</td>
+							<td>${item.el_ph2}V</td>
+							<td>${item.el_ph3}V</td>
+						</tr>
+						<tr>
+							<td><img src="/data/images/Water_Blue.png" alt="water_Ok" style="width: 20px;"></td>
+							<td colspan="1">${item.cold_water_pr}Bar</td>
+							<td colspan="1"><img src="/data/images/Water_Red.png" alt="water_Ok" style="width: 20px;"></td>
+							<td colspan="1">${item.hot_water_pr}Bar</td>
+						</tr>
+
+			`;
+			let marker = L.circleMarker([item.latitude,item.longitude],circleOptionsGreen)
+			.on('mouseover',function(){
+
+                this.bindPopup(popupContent).openPopup()
             })
-            markers.addLayer(marker)
             
-            let sidebarItem = $(`<div class="sidebar-item">${item.Region} ${item.markaz} ${item.home}</div>`);
+			markers.addLayer(marker)
+            
+
+			// create sidebar 
+            let sidebarItem = $(`<div class="sidebar-item"><img src="/data/images/Electricity_Green.png" alt="Electicity_Ok" style="width: 15px;">
+			<img src="/data/images/Water_Green.png" alt="Electicity_Ok" style="width: 15px;">${item.region} ${item.markaz} ${item.home}</div>`);
 
             sidebarItem.click(function() {
                 map.setView([item.latitude, item.longitude], 3000);
-                marker.bindPopup(`${item.Region} ${item.markaz} ${item.home}<br>All Good`).openPopup();
+                marker.bindPopup(popupContent).openPopup();
             });
 
                 // Добавление элемента в соответствующую группу на сайдбаре
              $(`#${item.status}-group .status-items`).append(sidebarItem);
 
-            
+		}
+		else if (!isVoltageOff) {
+			//если есть электричество но есть отклонения по другим параметрам - рисуем оранжевый индикатор и отображаем попап
+		
+			// create popup filling
+			let popupContent = `
+			<div class="custom-popup-style" style="text-align: center;">
+			<strong>${item.region} ${item.markaz} ${item.home}</strong> 
+			<br>
+			<div>
+				<table class="custom-popup-style">
+					<tr>
+					
+						<td><img src=${voltageImage} alt="Electricity_Status" style="width: 20px;"></td>
+						<td ${!isPhase1Ok ? "class='blinking-cell-orange'" : '' } >${item.el_ph1}V</td>
+						<td ${!isPhase2Ok ? "class='blinking-cell-orange'" : '' } >${item.el_ph2}V</td>
+						<td ${!isPhase3Ok ? "class='blinking-cell-orange'" : '' } >${item.el_ph3}V</td>
+					</tr>
+					<tr>
+						<td><img src="${ColdWaterImage}" alt="ColdWater_Ok" style="width: 20px;"></td>
+						<td colspan="1">${item.cold_water_pr}Bar</td>
+						<td colspan="1"><img src="${HotWaterImage}" alt="HotWater_Ok" style="width: 20px;"></td>
+						<td colspan="1">${item.hot_water_pr}Bar</td>
+					</tr>
 
-            //$('.sidebar').append('<div class="sidebar-item">'+item.home+'</div>')
+			`;
 
-        } else if (item.status === 'war') {
             let marker = L.circleMarker([item.latitude,item.longitude],circleOptionsYellow)
             .on('mouseover',function(){
-                this.bindPopup(`${item.Region} ${item.markaz} ${item.home}<br>Warning`).openPopup()
+                this.bindPopup(popupContent).openPopup()
             })
             markers.addLayer(marker)
 			
-			let sidebarItem = $(`<div class="sidebar-item">${item.Region} ${item.markaz} ${item.home}</div>`);
+			let sidebarItem = $(`<div class="sidebar-item">${item.region} ${item.markaz} ${item.home}</div>`);
 
             sidebarItem.click(function() {
                 map.setView([item.latitude, item.longitude], 3000);
-                marker.bindPopup(`${item.Region} ${item.markaz} ${item.home}<br>All Good`).openPopup();
+                marker.bindPopup(popupContent).openPopup();
             });
 
                 // Добавление элемента в соответствующую группу на сайдбаре
              $(`#${item.status}-group .status-items`).append(sidebarItem);
+		}
 
-        } else {
-            let marker = L.circleMarker([item.latitude,item.longitude],circleOptionsRed)
-            .on('mouseover',function(){
-                this.bindPopup(`${item.Region} ${item.markaz} ${item.home}<br>Error`).openPopup()
-            })
-            markers.addLayer(marker)
+		else if (isVoltageOff){
+			//если нет электричества отображаем красный индикатор и рисуем попап с отключением электричества
+			// create popup filling
+			let popupContent = `
+				<div class="custom-popup-style" style="text-align: center;">
+				<strong>${item.region} ${item.markaz} ${item.home}</strong> 
+				<br>
+				<div>
+					<table class="custom-popup-style">
+						<tr>
+							<td><img src="/data/images/Electricity_Red.png" alt="Electicity_Ok" style="width: 20px;"></td>
+							<td>${item.el_ph1}V</td>
+							<td>${item.el_ph2}V</td>
+							<td>${item.el_ph3}V</td>
+						</tr>
+						<tr>
+							<td><img src=${ColdWaterImage} alt="ColdWater_Ok" style="width: 20px;"></td>
+							<td colspan="1">${item.cold_water_pr}Bar</td>
+							<td colspan="1"><img src="${HotWaterImage}" style="width: 20px;"></td>
+							<td colspan="1">${item.hot_water_pr}Bar</td>
+						</tr>
+			`;
+			let marker = L.circleMarker([item.latitude,item.longitude],circleOptionsRed)
+			.on('mouseover',function(){
+				this.bindPopup(popupContent).openPopup()
+			})
+			markers.addLayer(marker)
 
-			let sidebarItem = $(`<div class="sidebar-item">${item.Region} ${item.markaz} ${item.home}</div>`);
+			let sidebarItem = $(`<div class="sidebar-item">${item.region} ${item.markaz} ${item.home}</div>`);
 
-            sidebarItem.click(function() {
-                map.setView([item.latitude, item.longitude], 3000);
-                marker.bindPopup(`${item.Region} ${item.markaz} ${item.home}<br>All Good`).openPopup();
-            });
+			sidebarItem.click(function() {
+				map.setView([item.latitude, item.longitude], 3000);
+				marker.bindPopup(popupContent).openPopup();
+			});
 
-                // Добавление элемента в соответствующую группу на сайдбаре
-             $(`#${item.status}-group .status-items`).append(sidebarItem);
+				// Добавление элемента в соответствующую группу на сайдбаре
+			$(`#${item.status}-group .status-items`).append(sidebarItem);
+				
+		}
 
-        }
+
 
 	})
 
 			// Предположим, что у вас уже есть объект карты Leaflet в переменной `map`
-		let popup = L.popup({ className: 'blinking-popup' })
-		.setLatLng([41.28320,69.19576]) // Установите координаты, где должен появиться попап
-		.setContent("Warning!") // Содержимое попапа
-		.openOn(map); // Добавьте попап на карту
+	//	let popup = L.popup({ className: 'blinking-popup' })
+	//	.setLatLng([41.28320,69.19576]) // Установите координаты, где должен появиться попап
+	//	.setContent("Warning!") // Содержимое попапа
+	//	.openOn(map); // Добавьте попап на карту
     
     $('.status-title').click(function() {
         $(this).next('.status-items').slideToggle('fast');
