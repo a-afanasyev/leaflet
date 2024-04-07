@@ -96,7 +96,7 @@ body {
     background-color: #f0f0f0; /* Светло-серый фон */
     color: #333; /* Темно-серый текст */
     font-family: Arial, sans-serif; /* Шрифт */
-    font-size: 12px;
+    font-size: 8px;
     border-radius: 8px; /* Скругленные углы */
 }
 
@@ -108,14 +108,14 @@ body {
     /* Стили для таблицы */
     border-collapse: collapse;
     width: 100%;
-    font-size: 12px;
+    font-size: 8px;
 }
 
 .custom-popup-style th, .custom-popup-style td {
     /* Стили для ячеек */
     border: 1px solid black;
     padding: 2px;
-    font-size: 12px;
+    font-size: 8px;
 }
   
 

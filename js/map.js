@@ -5,8 +5,9 @@ let map;
 // path to csv data
 let path = "data/10.csv";
 let picture_path= "a-afanasyev/leaflet/main/data/images/";
-
+//let picture_path= "data/images/";
 let markers = L.featureGroup();
+
 
 // initialize
 $( document ).ready(function() {
@@ -41,28 +42,28 @@ function mapCSV(data){
 
 	// circle options
 	let circleOptionsBlue = {
-		radius: 10,
+		radius: 8,
 		weight: 1,
 		color: 'white',
 		fillColor: 'dodgerblue',
 		fillOpacity: 1
 	}
 	let circleOptionsGreen = {
-		radius: 10,
+		radius: 8,
 		weight: 1,
 		color: 'white',
 		fillColor: 'Green',
 		fillOpacity: 1
 	}
     let circleOptionsRed = {
-		radius: 10,
+		radius: 8,
 		weight: 1,
 		color: 'white',
 		fillColor: 'Red',
 		fillOpacity: 1
 	}
     let circleOptionsYellow = {
-		radius: 10,
+		radius: 8,
 		weight: 1,
 		color: 'white',
 		fillColor: 'orange',
@@ -78,7 +79,6 @@ function mapCSV(data){
 		const isVoltageOk = isPhase1Ok && isPhase2Ok && isPhase3Ok;
 		const voltageImage = isVoltageOk ? picture_path+"Electricity_Green.png" : picture_path+"Electricity_Orange.png";
 		const isVoltageOff = item.el_ph1 == 0 && item.el_ph2 == 0 && item.el_ph3 == 0;
-		console.log(voltageImage);
 		//проверяем состояние ХВС
 		const isColdWaterOk = item.cold_water_pr >= 1;
 		const ColdWaterImage = isColdWaterOk ? picture_path+"Water_Blue.png" : picture_path+"Water_No_Blue.png";
