@@ -28,6 +28,7 @@ function readCSV(){
 	Papa.parse(path, {
 		header: true,
 		download: true,
+		skipEmptyLines: true,
 		complete: function(data) {
 			console.log(data);
 			
