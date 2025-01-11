@@ -1,3 +1,2 @@
 ID;latitude;longitude;region;markaz;home;building type;status;status_electricity;status_water;el_ph1;el_ph2;el_ph3;cold_water_pr;hot_water_pr
 CH-10-1;41.28304;69.20158;chilanzar;10;1;appartment;ok;ok;ok;50;215;220;2;6
-OL-01-3;41.35113;69.21977;olmazor;shifonur;3A;appartment;ok;ok;ok;220;220;220;2;5
