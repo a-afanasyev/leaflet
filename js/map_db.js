@@ -1,12 +1,19 @@
+const express = require('express');
 const { Pool } = require('pg');
 
-// Настройки подключения к PostgreSQL
+const app = express();
+const port = 81;
+
+const cors = require('cors');
+app.use(cors());
+
+// Настройка подключения к PostgreSQL
 const pool = new Pool({
     user: 'postgres',
     host: 'localhost',
     database: 'postgres',
     password: 'postgres',
-    port: 5432
+    port: 5432,
 });
 
 // Функция для получения данных из PostgreSQL
