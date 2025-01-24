@@ -10,7 +10,7 @@ const pool = new Pool({
     user: 'postgres',            // Имя пользователя PostgreSQL
     host: 'localhost',           // Хост PostgreSQL
     database: 'smart_building_monitoring', // Название базы данных
-    password: 'your_password',   // Пароль пользователя
+    password: 'password',   // Пароль пользователя
     port: 5432,                  // Порт PostgreSQL
 });
 
