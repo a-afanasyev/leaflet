@@ -2,18 +2,34 @@
 
 // Global variables
 let map;
-// path to csv data
-let path = "data/10.csv";
-//let picture_path= "a-afanasyev/leaflet/main/data/images/";
-let picture_path= "data/images/";
+const apiURL = "http://localhost:8080";
+const dataEndpoint = "api/metrics";
+// csvPath to csv data
+let csvPath = "10.csv";
+//let picturePath= "a-afanasyev/leaflet/main/data/images/";
+let picturePath= "data/images/";
 let markers = L.featureGroup();
 
 
 // initialize
-$( document ).ready(function() {
+$(document).ready(function () {
 	createMap();
-	readCSV(path);
+	fetch(`${apiURL}/${dataEndpoint}`).then(function(response) {
+		return response.json();
+	}).then(function(data) {
+		mapData(data);
+	}).catch(function(err) {
+		console.log('Fetch Error :-S', err);
+	});
+	// readCSV(`${apiURL}/${csvPath}`);
 });
+
+	
+async function fetchAsync(url) {
+  let response = await fetch(url);
+  let data = await response.json();
+  return data;
+}
 
 // create the map
 function createMap(){
@@ -24,7 +40,7 @@ function createMap(){
 	}).addTo(map);
 }
 // function to read csv data
-function readCSV(){
+function readCSV(path){
 	Papa.parse(path, {
 		header: true,
 		download: true,
@@ -33,13 +49,13 @@ function readCSV(){
 			console.log(data);
 			
 			// map the data
-			mapCSV(data);
+			mapData(data.data);
 
 		}
 	});
 }
 
-function mapCSV(data){
+function mapData(data){
 
 	// circle options
 	let circleOptionsBlue = {
@@ -72,21 +88,21 @@ function mapCSV(data){
 	}
 
 	// loop through each entry
-	data.data.forEach(function(item,index){
+	data.forEach(function(item,index){
 		//проверяем состояние электоэнергии
-		const isPhase1Ok = item.el_ph1 >= 210 && item.el_ph1 <= 230
-		const isPhase2Ok = item.el_ph2 >= 210 && item.el_ph2 <= 230
-		const isPhase3Ok = item.el_ph3 >= 210 && item.el_ph3 <= 230
+		const isPhase1Ok = item.electricity_ph1 >= 210 && item.electricity_ph1 <= 230
+		const isPhase2Ok = item.electricity_ph2 >= 210 && item.electricity_ph2 <= 230
+		const isPhase3Ok = item.electricity_ph3 >= 210 && item.electricity_ph3 <= 230
 		const isVoltageOk = isPhase1Ok && isPhase2Ok && isPhase3Ok;
-		const voltageImage = isVoltageOk ? picture_path+"Electricity_Green.png" : picture_path+"Electricity_Orange.png";
-		const isVoltageOff = item.el_ph1 == 0 && item.el_ph2 == 0 && item.el_ph3 == 0;
+		const voltageImage = isVoltageOk ? picturePath+"Electricity_Green.png" : picturePath+"Electricity_Orange.png";
+		const isVoltageOff = item.electricity_ph1 == 0 && item.electricity_ph2 == 0 && item.electricity_ph3 == 0;
 		//проверяем состояние ХВС
-		const isColdWaterOk = item.cold_water_pr >= 1;
-		const ColdWaterImage = isColdWaterOk ? picture_path+"Water_Blue.png" : picture_path+"Water_No_Blue.png";
+		const isColdWaterOk = item.cold_water_pressure >= 1;
+		const ColdWaterImage = isColdWaterOk ? picturePath+"Water_Blue.png" : picturePath+"Water_No_Blue.png";
 
 		//проверяем состояние ГВС
-		const isHotWaterOk = item.hot_water_pr >= 1;
-		const HotWaterImage = isHotWaterOk ? picture_path+"Water_Red.png" : picture_path+"Water_No_Red.png";
+		const isHotWaterOk = item.hot_water_in_pressure >= 1;
+		const HotWaterImage = isHotWaterOk ? picturePath+"Water_Red.png" : picturePath+"Water_No_Red.png";
 
 		if(isVoltageOk && !isVoltageOff && isColdWaterOk && isHotWaterOk){
 			//если все ок - рисуем зеленый индикатор и отображаем попап что все ок
@@ -99,16 +115,16 @@ function mapCSV(data){
 				<div>
 					<table class="custom-popup-style">
 						<tr>
-							<td><img src="${picture_path}Electricity_Green.png" alt="Electicity_Ok" style="width: 20px;"></td>
-							<td>${item.el_ph1}V</td>
-							<td>${item.el_ph2}V</td>
-							<td>${item.el_ph3}V</td>
+							<td><img src="${picturePath}Electricity_Green.png" alt="Electicity_Ok" style="width: 20px;"></td>
+							<td>${item.electricity_ph1}V</td>
+							<td>${item.electricity_ph2}V</td>
+							<td>${item.electricity_ph3}V</td>
 						</tr>
 						<tr>
-							<td><img src="${picture_path}Water_Blue.png" alt="water_Ok" style="width: 20px;"></td>
-							<td colspan="1">${item.cold_water_pr}Bar</td>
-							<td colspan="1"><img src="${picture_path}Water_Red.png" alt="water_Ok" style="width: 20px;"></td>
-							<td colspan="1">${item.hot_water_pr}Bar</td>
+							<td><img src="${picturePath}Water_Blue.png" alt="water_Ok" style="width: 20px;"></td>
+							<td colspan="1">${item.cold_water_pressure}Bar</td>
+							<td colspan="1"><img src="${picturePath}Water_Red.png" alt="water_Ok" style="width: 20px;"></td>
+							<td colspan="1">${item.hot_water_in_pressure}Bar</td>
 						</tr>
 
 			`;
@@ -147,15 +163,15 @@ function mapCSV(data){
 					<tr>
 					
 						<td><img src=${voltageImage} alt="Electricity_Status" style="width: 20px;"></td>
-						<td ${!isPhase1Ok ? "class='blinking-cell-orange'" : '' } >${item.el_ph1}V</td>
-						<td ${!isPhase2Ok ? "class='blinking-cell-orange'" : '' } >${item.el_ph2}V</td>
-						<td ${!isPhase3Ok ? "class='blinking-cell-orange'" : '' } >${item.el_ph3}V</td>
+						<td ${!isPhase1Ok ? "class='blinking-cell-orange'" : '' } >${item.electricity_ph1}V</td>
+						<td ${!isPhase2Ok ? "class='blinking-cell-orange'" : '' } >${item.electricity_ph2}V</td>
+						<td ${!isPhase3Ok ? "class='blinking-cell-orange'" : '' } >${item.electricity_ph3}V</td>
 					</tr>
 					<tr>
 						<td><img src="${ColdWaterImage}" alt="ColdWater_Ok" style="width: 20px;"></td>
-						<td colspan="1">${item.cold_water_pr}Bar</td>
+						<td colspan="1">${item.cold_water_pressure}Bar</td>
 						<td colspan="1"><img src="${HotWaterImage}" alt="HotWater_Ok" style="width: 20px;"></td>
-						<td colspan="1">${item.hot_water_pr}Bar</td>
+						<td colspan="1">${item.hot_water_in_pressure}Bar</td>
 					</tr>
 
 			`;
@@ -188,15 +204,15 @@ function mapCSV(data){
 					<table class="custom-popup-style">
 						<tr>
 							<td><img src="data/images/Electricity_Red.png" alt="Electicity_Ok" style="width: 20px;"></td>
-							<td>${item.el_ph1}V</td>
-							<td>${item.el_ph2}V</td>
-							<td>${item.el_ph3}V</td>
+							<td>${item.electricity_ph1}V</td>
+							<td>${item.electricity_ph2}V</td>
+							<td>${item.electricity_ph3}V</td>
 						</tr>
 						<tr>
 							<td><img src=${ColdWaterImage} alt="ColdWater_Ok" style="width: 20px;"></td>
-							<td colspan="1">${item.cold_water_pr}Bar</td>
+							<td colspan="1">${item.cold_water_pressure}Bar</td>
 							<td colspan="1"><img src="${HotWaterImage}" style="width: 20px;"></td>
-							<td colspan="1">${item.hot_water_pr}Bar</td>
+							<td colspan="1">${item.hot_water_in_pressure}Bar</td>
 						</tr>
 			`;
 			let marker = L.circleMarker([item.latitude,item.longitude],circleOptionsRed)

@@ -1,20 +1,22 @@
 const express = require('express');
 const { Pool } = require('pg');
 const cors = require('cors');
+const configs = require("./config/config")
 
 const app = express();
 const port = 8080;
 
 // Настройка подключения к базе данных
 const pool = new Pool({
-    user: 'postgres',            // Имя пользователя PostgreSQL
-    host: 'localhost',           // Хост PostgreSQL
-    database: 'smart_building_monitoring', // Название базы данных
-    password: 'postgres',   // Пароль пользователя
-    port: 5432,                  // Порт PostgreSQL
+    user: configs.pg.pgUser,            // Имя пользователя PostgreSQL
+    host:  configs.pg.pgHost,           // Хост PostgreSQL
+    database: configs.pg.pgDatabase, // Название базы данных
+    password: configs.pg.pgPassword,   // Пароль пользователя
+    port: configs.pg.pgPort,                  // Порт PostgreSQL
 });
 
 app.use(cors());
+app.use(express.static('data'))
 
 // Проверка подключения к базе
 pool.connect((err, client, release) => {
@@ -93,7 +95,6 @@ app.get('/api/controllers', async (req, res) => {
         res.status(500).send('Ошибка запроса к базе данных');
     }
 });
-
 
 // Запуск сервера
 app.listen(port, () => {
