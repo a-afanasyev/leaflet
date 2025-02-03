@@ -2,13 +2,36 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="stylesheet" href="css/style.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Map Visualization</title>
     <!--<link rel="stylesheet" href="css/style.css"> -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
 <body>
-    <div id="map" style="width: 100%; height: 600px;"></div>
+    <div class="header">
+        InfraSafe
+    </div>
+    <div id="sidebar">
+        <div id="ok-group">
+            <h3>✅ Normal</h3>
+            <div class="status-items"></div>
+        </div>
+        <div id="warning-group">
+            <h3>⚠️ Warning</h3>
+            <div class="status-items"></div>
+        </div>
+        <div id="critical-group">
+            <h3>🚨 Critical</h3>
+            <div class="status-items"></div>
+        </div>
+    </div>
+    <div class="content">
+        <div id="map"></div>
+    </div>
+    <div class="footer">
+        InfraSafe test version
+    </div>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="public/script.js"></script>
 </body>
