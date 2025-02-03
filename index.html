@@ -1,46 +1,41 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-	<title>InfraSafe Habitat IQ</title>
-	<meta charset="utf-8" />
-
-	<!-- style sheets -->
-	<link rel="stylesheet" href="css/style.css">
-
-    <!-- leaflet -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-    <!-- jquery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
-    <script src="js/papaparse.min.js"></script>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="css/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Map Visualization</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
 <body>
-
-	<div class="header">
-		InfraSafe
-	</div>
+    <div class="header">
+        InfraSafe
+    </div>
     <div id="sidebar">
-        <div class="status-group" id="ok-group">
-            <div class="status-title">OK</div>
+        <div id="ok-group">
+            <h3> Normal</h3>
             <div class="status-items"></div>
         </div>
-        <div class="status-group" id="warning-group">
-            <div class="status-title">Warning</div>
+        <div id="warning-group">
+            <h3> Warning</h3>
             <div class="status-items"></div>
         </div>
-        <div class="status-group" id="alarm-group">
-            <div class="status-title">Error</div>
+        <div id="critical-group">
+            <h3> Critical</h3>
+            <div class="status-items"></div>
+        </div>
+        <div id="no-group">
+            <h3> No controllers</h3>
             <div class="status-items"></div>
         </div>
     </div>
-	<div class="content">
-	<div id="map"></div>
-	</div>
-	<div class="footer">
-		InfraSafe test version
-	</div>
-
-	<!-- javascript script -->
-	<script src="js/map.js"></script>
-	
+    <div class="content">
+        <div id="map"></div>
+    </div>
+    <div class="footer">
+        InfraSafe test version
+    </div>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="public/script.js"></script>
 </body>
 </html>

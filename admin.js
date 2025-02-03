@@ -1,102 +1,133 @@
-const backendURL = "http://localhost:8080/api/buildings";
+document.addEventListener("DOMContentLoaded", function () {
+    const backendURL = "http://localhost:8080/api"; // Adjust this as needed
 
-// Fetch data and populate the table
-async function loadData() {
-    try {
-        const response = await fetch(backendURL);
-        const data = await response.json();
-
-        const tableBody = document.querySelector("#data-table tbody");
+    // Fetch and display buildings
+    async function loadBuildings() {
+        const response = await fetch(`${backendURL}/buildings`);
+        const buildings = await response.json();
+        const tableBody = document.querySelector("#buildings-table tbody");
         tableBody.innerHTML = "";
-
-        data.forEach((building) => {
+        
+        buildings.forEach((building) => {
             const row = document.createElement("tr");
             row.innerHTML = `
                 <td>${building.building_id}</td>
-                <td contenteditable="true">${building.name}</td>
-                <td contenteditable="true">${building.latitude}</td>
-                <td contenteditable="true">${building.longitude}</td>
-                <td>
-                    <button onclick="updateBuilding(${building.building_id}, this)">Save</button>
-                    <button onclick="deleteBuilding(${building.building_id})">Delete</button>
-                </td>
+                <td>${building.name}</td>
+                <td>${building.address}</td>
+                <td>${building.town}</td>
+                <td>${building.latitude}</td>
+                <td>${building.longitude}</td>
+                <td>${building.management_company || "N/A"}</td>
+                <td><button onclick="deleteBuilding(${building.building_id})">Delete</button></td>
             `;
             tableBody.appendChild(row);
         });
-    } catch (error) {
-        console.error("Error loading data:", error);
     }
-}
 
-// Add new building
-document.getElementById("add-form").addEventListener("submit", async (event) => {
-    event.preventDefault();
+    // Fetch and display controllers
+    async function loadControllers() {
+        const response = await fetch(`${backendURL}/controllers`);
+        const controllers = await response.json();
+        const tableBody = document.querySelector("#controllers-table tbody");
+        tableBody.innerHTML = "";
+        
+        controllers.forEach((controller) => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td>${controller.controller_id}</td>
+                <td>${controller.serial_number}</td>
+                <td>${controller.vendor || "N/A"}</td>
+                <td>${controller.model || "N/A"}</td>
+                <td>${controller.building_id}</td>
+                <td>${controller.status}</td>
+                <td><button onclick="deleteController(${controller.controller_id})">Delete</button></td>
+            `;
+            tableBody.appendChild(row);
+        });
+    }
+
+    // Function to send POST requests
+    async function postData(url, data) {
+        try {
+            const response = await fetch(url, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to submit data");
+            }
+
+            alert("Success");
+            loadBuildings();
+            loadControllers();
+        } catch (err) {
+            console.error("Error:", err);
+            alert("Error submitting data");
+        }
+    }
+
+    // Handle Building Form Submission
+    document.getElementById("add-building-form").addEventListener("submit", function (event) {
+        event.preventDefault();
+        const buildingData = {
+            name: document.getElementById("building-name").value,
+            address: document.getElementById("building-address").value,
+            town: document.getElementById("building-town").value,
+            latitude: parseFloat(document.getElementById("building-latitude").value),
+            longitude: parseFloat(document.getElementById("building-longitude").value),
+            management_company: document.getElementById("building-management").value
+        };
+        postData(`${backendURL}/buildings`, buildingData);
+    });
+
+    // Handle Controller Form Submission
+    document.getElementById("add-controller-form").addEventListener("submit", function (event) {
+        event.preventDefault();
+        const controllerData = {
+            serial_number: document.getElementById("controller-serial").value,
+            vendor: document.getElementById("controller-vendor").value,
+            model: document.getElementById("controller-model").value,
+            building_id: parseInt(document.getElementById("controller-building-id").value),
+            status: document.getElementById("controller-status").value
+        };
+        postData(`${backendURL}/controllers`, controllerData);
+    });
+
+    // Delete Building
+//    async function deleteBuilding(id) {
+//        if (confirm("Are you sure you want to delete this building?")) {
+//            await fetch(`${backendURL}/buildings/${id}`, { method: "DELETE" });
+//            loadBuildings();
+//        }
+//    }
+    async function deleteBuilding(buildingId) {
+        if (!confirm("Are you sure you want to delete this building?")) return;
     
-    const name = document.getElementById("name").value;
-    const latitude = document.getElementById("latitude").value;
-    const longitude = document.getElementById("longitude").value;
-
-    try {
-        const response = await fetch(backendURL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name, latitude, longitude }),
-        });
-
-        if (response.ok) {
-            alert("Building added successfully!");
-            loadData();
-        } else {
-            alert("Failed to add building.");
+        try {
+            const response = await fetch(`/api/buildings/${buildingId}`, { method: "DELETE" });
+            if (response.ok) {
+                alert("Building deleted successfully.");
+                location.reload(); // Refresh page after deletion
+            } else {
+                alert("Error deleting building.");
+            }
+        } catch (error) {
+            console.error("Error deleting building:", error);
+            alert("Failed to connect to the server.");
         }
-    } catch (error) {
-        console.error("Error adding building:", error);
     }
+
+    // Delete Controller
+    async function deleteController(id) {
+        if (confirm("Are you sure you want to delete this controller?")) {
+            await fetch(`${backendURL}/controllers/${id}`, { method: "DELETE" });
+            loadControllers();
+        }
+    }
+
+    // Load data initially
+    loadBuildings();
+    loadControllers();
 });
-
-// Update a building
-async function updateBuilding(building_id, button) {
-    const row = button.parentElement.parentElement;
-    const name = row.cells[1].innerText;
-    const latitude = row.cells[2].innerText;
-    const longitude = row.cells[3].innerText;
-
-    try {
-        const response = await fetch(`${backendURL}/${building_id}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name, latitude, longitude }),
-        });
-
-        if (response.ok) {
-            alert("Building updated successfully!");
-        } else {
-            alert("Failed to update building.");
-        }
-    } catch (error) {
-        console.error("Error updating building:", error);
-    }
-}
-
-// Delete a building
-async function deleteBuilding(building_id) {
-    if (!confirm("Are you sure you want to delete this building?")) return;
-
-    try {
-        const response = await fetch(`${backendURL}/${building_id}`, {
-            method: "DELETE",
-        });
-
-        if (response.ok) {
-            alert("Building deleted successfully!");
-            loadData();
-        } else {
-            alert("Failed to delete building.");
-        }
-    } catch (error) {
-        console.error("Error deleting building:", error);
-    }
-}
-
-// Load data on page load
-loadData();
